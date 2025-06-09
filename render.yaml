@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: bloomfilter
+    env: java
+    plan: free
+    region: frankfurt
+    buildCommand: ./mvnw clean install
+    startCommand: java -jar target/*.jar
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
