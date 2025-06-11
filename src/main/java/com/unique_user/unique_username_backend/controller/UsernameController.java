@@ -28,25 +28,34 @@ public class UsernameController {
 
     @GetMapping("/check")
     public ResponseEntity<Map<String, Boolean>> checkUsername(@RequestParam String username) {
+        Map<String, Boolean> response = new HashMap<>();
+        try {
+            if (username == null || username.isBlank()) {
+                response.put("available", false);
+                return ResponseEntity.badRequest().body(response);
+            }
 
-        if (username == null || username.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("available", false));
+            boolean isAvailable;
+
+            if (redisService.isUserChached(username)) {
+                System.out.println("checked cache first");
+                isAvailable = false;
+            } else if (!bloomService.mightContain(username)) {
+                isAvailable = true;
+            } else {
+                isAvailable = !repository.existsByUsername(username);
+            }
+
+            response.put("available", isAvailable);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace(); // 👈 this will show the full stack trace in Render logs
+            response.put("available", false);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-
-        boolean isAvailable;
-
-        if(redisService.isUserChached(username)){
-            System.out.println("checked cache first");
-            isAvailable = false;
-        }
-        else if (!bloomService.mightContain(username)) {
-            isAvailable = true; // Definitely not in DB
-        } else {
-            isAvailable = !repository.existsByUsername(username); // False positive? Double-check DB
-        }
-
-        return ResponseEntity.ok(Map.of("available", isAvailable));
     }
+
 
     @PostMapping("/add")
     public ResponseEntity<?> addUsername(@RequestBody Map<String, String> body) {
