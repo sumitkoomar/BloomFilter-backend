@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/create-username")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://bloomfilter-frontend.onrender.com")
 public class UsernameController {
 
     private final UsernameRepository repository;
