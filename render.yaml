@@ -1,7 +1,7 @@
 services:
   - type: web
     name: bloomfilter
-    env: java
+    runtime: java
     plan: free
     region: frankfurt
     buildCommand: ./mvnw clean install
